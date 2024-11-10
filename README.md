@@ -77,7 +77,7 @@ your_project/
 3. **Create a Virtual Environment (Optional but Recommended)**
 
    ```bash
-   python3 -m venv venv
+   python3.10 -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
