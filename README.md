@@ -81,13 +81,17 @@ your_project/
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-4. **Install Dependencies**
+4. **Upgrade `pip`,`setuptools` and `wheel` **
 
    ```bash
-   pip install --upgrade pip
-   pip install -r requirements.txt
+   pip install --upgrade pip setuptools wheel
    ```
-
+  This will update all the required dependencies.
+  
+5. ** Install  dependencies  **
+  ```bash
+     pip install -r requirements.txt
+  ```
    This will install all the necessary packages listed in `requirements.txt`.
 
 ---

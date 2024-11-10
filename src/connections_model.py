@@ -15,7 +15,11 @@ from collections import defaultdict  # For grouping words
 from .similarity_metrics import (
     calculate_cosine_similarity,
     calculate_jaccard_similarity,
-    calculate_levenshtein_distance
+    calculate_neighbor_overlap,
+    calculate_euclidean_similarity,
+    ngram_jaccard_similarity,
+    calculate_levenshtein_distance,
+    calculate_semantic_similarity
 )
 
 def connections_model(words, model):
@@ -31,78 +35,131 @@ def connections_model(words, model):
     """
 
     # Similarity thresholds for grouping
-    COSINE_THRESHOLD = 0.7  # Threshold for semantic similarity (cosine similarity)
-    JACCARD_THRESHOLD = 0.8  # Threshold for lexical similarity (Jaccard similarity)
-    LEVENSHTEIN_THRESHOLD = 3  # Threshold for spelling similarity (Levenshtein distance)
+    # Semantic
+    EUCLEDIAN_THRESHOLD = 0.1 
+    COSINE_THRESHOLD = 0.1
+    SEMANTIC_SIMILARITY_THRESHOLD = 0.5 # Needs to be fine-tuned.  
+
+    # Lexical
+    JACCARD_THRESHOLD = 0.1  # Lowered threshold for lexical similarity
+
+    # Spelling
+    LEVENSHTEIN_THRESHOLD = 10  # Increased threshold for spelling similarity
+
+    # Weights for the similarity components
+    weights = {'cosine': 0.4, 'euclidean': 0.3, 'neighbor': 0.3}
+
 
     # Initialize data structures
     groups = defaultdict(list)  # Dictionary to hold groups of words
     used_words = set()  # Set to keep track of words that have already been grouped
 
-    # Step 1: Group words based on high semantic similarity (cosine similarity)
+    # Step 1: Group words based on semantic similarity (cosine similarity)
+    print("Step 1: Semantic Similarity Grouping")
     for word1 in words:
         if word1 in used_words:
             continue  # Skip words that have already been grouped
         group = [word1]  # Start a new group with the current word
-        used_words.add(word1)  # Mark the word as used
+        used_words.add(word1)
+        print(f"Creating new group with seed word: {word1}")
         for word2 in words:
-            if word2 not in used_words:
-                cosine_similarity = calculate_cosine_similarity(word1, word2, model)
-                if cosine_similarity >= COSINE_THRESHOLD:
-                    # Add word to group if it has high cosine similarity with word1
+            if word2 not in used_words and word2 != word1:
+                # Check similarity with any member of the group
+                semantic_similarities = [calculate_semantic_similarity(w, word2, model,top_n=50,weights=weights) for w in group]
+                max_similarity = max(semantic_similarities)
+                print(f"Checking word: {word2}")
+                print(f"  Semantic similarities with group members: {list(zip(group, semantic_similarities))}")
+                if max_similarity >= SEMANTIC_SIMILARITY_THRESHOLD:
                     group.append(word2)
-                    used_words.add(word2)  # Mark the word as used
-            if len(group) == 4:
-                break  # Stop adding words if the group reaches four words
+                    used_words.add(word2)
+                    print(f"  Added {word2} to group (max similarity: {max_similarity})")
+                else:
+                    print(f"  Did not add {word2} (max similarity: {max_similarity})")
+                if len(group) == 4:
+                    break  # Stop adding words if the group reaches four words
         if len(group) == 4:
             # Add the group to the groups dictionary
             group_name = f"Group{len(groups) + 1}"
             groups[group_name] = group
+            print(f"Formed group {group_name}: {group}")
         else:
-            # Remove words from used_words if the group is incomplete
-            used_words.difference_update(group)
-    
-    # Step 2: Group remaining words based on high lexical similarity (Jaccard similarity)
+            print(f"Could not form a full group with seed word: {word1}")
+            used_words.difference_update(group)  # Remove words if group is incomplete
+
+    # Step 2: Group remaining words based on lexical similarity (Jaccard similarity)
+    print("\nStep 2: Lexical Similarity Grouping")
     remaining_words = [word for word in words if word not in used_words]
     for word1 in remaining_words:
         if word1 in used_words:
             continue
         group = [word1]
         used_words.add(word1)
+        print(f"Creating new group with seed word: {word1}")
         for word2 in remaining_words:
-            if word2 not in used_words:
-                jaccard_similarity = calculate_jaccard_similarity(word1, word2)
-                if jaccard_similarity >= JACCARD_THRESHOLD:
+            if word2 not in used_words and word2 != word1:
+                # Check similarity with any member of the group
+                similarities = [ngram_jaccard_similarity(w, word2,n=2) for w in group]
+                max_similarity = max(similarities)
+                print(f"Checking word: {word2}")
+                print(f"  Similarities with group members: {list(zip(group, similarities))}")
+                if max_similarity >= JACCARD_THRESHOLD:
                     group.append(word2)
                     used_words.add(word2)
-            if len(group) == 4:
-                break
+                    print(f"  Added {word2} to group (max similarity: {max_similarity})")
+                else:
+                    print(f"  Did not add {word2} (max similarity: {max_similarity})")
+                if len(group) == 4:
+                    break
         if len(group) == 4:
             group_name = f"Group{len(groups) + 1}"
             groups[group_name] = group
+            print(f"Formed group {group_name}: {group}")
         else:
+            print(f"Could not form a full group with seed word: {word1}")
             used_words.difference_update(group)
 
-    # Step 3: Group remaining words based on low spelling difference (Levenshtein distance)
+    # Step 3: Group remaining words based on spelling similarity (Levenshtein distance)
+    print("\nStep 3: Spelling Similarity Grouping")
     remaining_words = [word for word in words if word not in used_words]
     for word1 in remaining_words:
         if word1 in used_words:
             continue
         group = [word1]
         used_words.add(word1)
+        print(f"Creating new group with seed word: {word1}")
         for word2 in remaining_words:
-            if word2 not in used_words:
-                levenshtein_distance = calculate_levenshtein_distance(word1, word2)
-                if levenshtein_distance <= LEVENSHTEIN_THRESHOLD:
+            if word2 not in used_words and word2 != word1:
+                # Check similarity with any member of the group
+                distances = [calculate_levenshtein_distance(w, word2) for w in group]
+                min_distance = min(distances)
+                print(f"Checking word: {word2}")
+                print(f"  Distances with group members: {list(zip(group, distances))}")
+                if min_distance <= LEVENSHTEIN_THRESHOLD:
                     group.append(word2)
                     used_words.add(word2)
-            if len(group) == 4:
-                break
+                    print(f"  Added {word2} to group (min distance: {min_distance})")
+                else:
+                    print(f"  Did not add {word2} (min distance: {min_distance})")
+                if len(group) == 4:
+                    break
         if len(group) == 4:
             group_name = f"Group{len(groups) + 1}"
             groups[group_name] = group
+            print(f"Formed group {group_name}: {group}")
         else:
+            print(f"Could not form a full group with seed word: {word1}")
             used_words.difference_update(group)
 
-    # Return the final groups of words
+    # Final grouping of remaining words to ensure all words are grouped
+    remaining_words = [word for word in words if word not in used_words]
+    if remaining_words:
+        print("\nFinal grouping of remaining words")
+        while remaining_words:
+            group = remaining_words[:4]
+            group_name = f"Group{len(groups) + 1}"
+            groups[group_name] = group
+            print(f"Formed group {group_name}: {group}")
+            used_words.update(group)
+            remaining_words = remaining_words[4:]
+
     return groups
