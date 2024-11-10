@@ -84,6 +84,7 @@ your_project/
 4. **Install Dependencies**
 
    ```bash
+   pip install --upgrade pip
    pip install -r requirements.txt
    ```
 
