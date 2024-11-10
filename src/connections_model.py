@@ -12,7 +12,7 @@
 from collections import defaultdict  # For grouping words
 
 # Import similarity functions
-from .similarity_metrics import (
+from similarity_metrics import (
     calculate_cosine_similarity,
     calculate_jaccard_similarity,
     calculate_neighbor_overlap,

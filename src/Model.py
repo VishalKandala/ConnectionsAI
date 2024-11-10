@@ -9,8 +9,8 @@
 ###############################################################################
 
 # Import necessary modules
-from .model_loader import ModelLoader  # Function to load the FastText model
-from .connections_model import connections_model  # Function to group words
+from model_loader import ModelLoader  # Function to load the FastText model
+from connections_model import connections_model  # Function to group words
 
 
 # def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
