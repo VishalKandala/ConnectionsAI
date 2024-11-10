@@ -66,23 +66,22 @@ your_project/
 - Python 3.10 or higher
 - `pip` package manager
 
-### Steps
-
+### Steps 
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/your_username/your_project.git
-   cd your_project
+   git clone https://github.com/VishalKandala/ConnectionsAI.git
+   cd ConnectionsAI
    ```
 
-2. **Create a Virtual Environment (Optional but Recommended)**
+3. **Create a Virtual Environment (Optional but Recommended)**
 
    ```bash
    python3 -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install Dependencies**
+4. **Install Dependencies**
 
    ```bash
    pip install -r requirements.txt
