@@ -26,45 +26,46 @@ def calculate_semantic_similarity(word1, word2, model, top_n=50, weights=None):
     Returns:
     - float: The combined semantic similarity score.
     """
-    if weights is None:
-        weights = {'cosine': 0.4, 'euclidean': 0.3, 'neighbor': 0.3}
-    
-    # Ensure the weights sum to 1
-    total_weight = sum(weights.values())
-    weights = {k: v / total_weight for k, v in weights.items()}
-    
-    # Initialize similarities
-    cosine_sim = 0.0
-    euclidean_sim = 0.0
-    neighbor_sim = 0.0
-    
-    # Compute Cosine Similarity
-    cosine_sim = calculate_cosine_similarity(word1, word2, model)
-    if cosine_sim is None:
+    try:
+        # Check if both words are in the vocabulary
+        if word1 not in model.key_to_index:
+            raise ValueError(f"The word '{word1}' is not in the vocabulary.")
+        if word2 not in model.key_to_index:
+            raise ValueError(f"The word '{word2}' is not in the vocabulary.")
+        
+        if weights is None:
+            weights = {'cosine': 0.4, 'euclidean': 0.3, 'neighbor': 0.3}
+        
+        # Ensure the weights sum to 1
+        total_weight = sum(weights.values())
+        weights = {k: v / total_weight for k, v in weights.items()}
+        
+        # Initialize similarities
         cosine_sim = 0.0
-    else:
-        cosine_sim = (cosine_sim + 1) / 2  # Normalize to [0,1]
-    
-    # Compute Euclidean Similarity
-    euclidean_dist = calculate_euclidean_similarity(word1, word2, model)
-    if euclidean_dist is None:
         euclidean_sim = 0.0
-    else:
-        euclidean_sim = 1 / (1 + euclidean_dist)  # Similarity in (0,1]
-    
-    # Compute Neighbor Overlap Similarity
-    neighbor_sim = calculate_neighbor_overlap(word1, word2, model, top_n)
-    if neighbor_sim is None:
         neighbor_sim = 0.0
+        
+        # Compute Cosine Similarity
+        cosine_sim = calculate_cosine_similarity(word1, word2, model)
+        
+        # Compute Euclidean Similarity
+        euclidean_sim = calculate_euclidean_similarity(word1, word2, model)
+        
+        # Compute Neighbor Overlap Similarity
+        neighbor_sim = calculate_neighbor_overlap(word1, word2, model, top_n)
+
+        # Combine similarities with weights
+        combined_similarity = (
+            weights['cosine'] * cosine_sim +
+            weights['euclidean'] * euclidean_sim +
+            weights['neighbor'] * neighbor_sim
+            )
     
-    # Combine similarities with weights
-    combined_similarity = (
-        weights['cosine'] * cosine_sim +
-        weights['euclidean'] * euclidean_sim +
-        weights['neighbor'] * neighbor_sim
-    )
-    
-    return combined_similarity
+        return combined_similarity
+    except ValueError as e:
+        print(f"Error: Word not in vocabulary - {e}")
+        return 0.0
+
    
 def calculate_neighbor_overlap(word1, word2, model, top_n=50):
     """

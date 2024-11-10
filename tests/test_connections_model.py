@@ -3,15 +3,17 @@
 import sys
 import os
 
-# Adjust the module search path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
+# Adjust the path to ensure the test script can access src modules
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.abspath(os.path.join(current_dir, os.pardir, 'src'))
+sys.path.append(src_dir)
 
-from src.model_loader import load_model
-from src.connections_model import connections_model
+from model_loader import ModelLoader
+from connections_model import connections_model
+from config import DATA_PATH
 
 def test_connections_model():
-    model_instance = load_model()
+    model_instance = ModelLoader.load_vectors()  # Defaults to 'embeddings/fasttext_vectors.kv'
 
     # Sample words to group (single words only)
     words = [

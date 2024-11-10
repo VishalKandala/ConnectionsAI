@@ -1,16 +1,18 @@
 import sys
 import os
 
-# Adjust the module search path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
+# Adjust the path to ensure the test script can access src modules
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.abspath(os.path.join(current_dir, os.pardir, 'src'))
+sys.path.append(src_dir)
 
 import random
 import numpy as np
 import json
 
 # Import the model function
-from src.Model import model
+from Model import model
+from config import DATA_PATH
 
 GROUP_MULTIPLIERS = {1: 1, 2: 2, 3: 3, 4: 3}
 STRIKE_MULTIPLIERS = {0: 1, 1: 0.9, 2: 0.75, 3: 0.5, 4: 0.25}
@@ -156,7 +158,7 @@ def load_puzzles():
     # Get the directory of the current script (tests directory)
     script_dir = os.path.dirname(__file__)
     # Build the path to sample_data.json
-    data_file_path = os.path.join(script_dir, 'sample_data.json')
+    data_file_path = DATA_PATH
 
     try:
         with open(data_file_path, 'r', encoding='utf-8') as file:

@@ -1,8 +1,16 @@
+import sys
+import os
+
+# Adjust the path to ensure the test script can access src modules
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.abspath(os.path.join(current_dir, os.pardir, 'src'))
+sys.path.append(src_dir)
+
 import random
 import numpy as np
 import requests
 import json
-import os
+from config import DATA_PATH
 
 def evalFunction():
     # Load puzzles
@@ -111,14 +119,20 @@ def evalFunction():
     print("Total points scored by model: ", totalPoints)
 
 def load_puzzles():
-    import os
     # Get the directory of the current script (tests directory)
     script_dir = os.path.dirname(__file__)
     # Build the path to sample_data.json
-    data_file_path = os.path.join(script_dir, 'sample_data.json')
+    data_file_path = DATA_PATH
 
-    with open(data_file_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
+    try:
+        with open(data_file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        print(f"Data file not found at {data_file_path}")
+        return []
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        return []
 
     # Create a 3D array (X puzzles, 4 rows, 4 words)
     puzzles_3d = []

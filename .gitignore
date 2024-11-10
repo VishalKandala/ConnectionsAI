@@ -31,7 +31,9 @@ var/
 
 # Data files (if you don't want to track them)
 # Uncomment the next line if sample_data.json should not be tracked
- tests/sample_data.json
+ data/sample_data.json
+ embeddings/fasttext_vectors.kv
+ embeddings/fasttext_vectors.kv.vectors.npy
 
 # IDE and Editor folders
 .vscode/

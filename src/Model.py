@@ -9,7 +9,7 @@
 ###############################################################################
 
 # Import necessary modules
-from .model_loader import load_model  # Function to load the FastText model
+from .model_loader import ModelLoader  # Function to load the FastText model
 from .connections_model import connections_model  # Function to group words
 
 
@@ -37,7 +37,7 @@ from .connections_model import connections_model  # Function to group words
 
 # Load the pre-trained FastText model once when the module is imported
 
-model_instance = load_model()
+model_instance = ModelLoader.load_vectors() # Defaults  to 'embeddings/fasttext_vectors.kv'
 
 def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
     """
