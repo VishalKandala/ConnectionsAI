@@ -38,9 +38,13 @@ your_project/
 │   └── connections_model.py
 ├── tests/
 │   ├── evaluator.py
+│   ├── eval_local.py
+│   ├── test_connections_model.py
+│   ├── test_similarity_metrics.py
 │   ├── sample_data.json
 ├── requirements.txt
 ├── README.md
+├── LICENSE
 
 ```
 
@@ -51,7 +55,7 @@ your_project/
   - **`similarity_metrics.py`**: Functions for calculating cosine similarity, Jaccard similarity, and Levenshtein distance.
   - **`connections_model.py`**: Contains the main logic for grouping words.
   - **`__init__.py`**: Makes `src` a Python package.
-- **`tests/`**: Contains all the source code modules.
+- **`tests/`**: Contains all the test modules and data.
   - **`evaluator.py`**: Has a script which can be used to evaluate the performance of the entire project
   - **`sample_data.json`**: Data to test performance against.
 - **`requirements.txt`**: Lists all the Python dependencies.
